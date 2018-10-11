@@ -67,16 +67,17 @@
                 <td><img src="${values.photo}" alt="User Image" class="img-circle img-sm"></td>
                 <td>${values.name}</td>
                 <td>${values.email}</td>
-                <td>${(values.admin) ? "Sim" : "Não"}</td>
+                <td>${(values.admin) ? "Yes" : "Not"}</td>
                 <td>${values.register.toLocaleDateString()}</td>
                 <td>
-                    <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-                    <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+                    <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Edit</button>
+                    <button type="button" class="btn btn-danger btn-xs btn-flat">Delete</button>
                 </td>
             `;
             
-            this.updateCount();
-            this.addEventsTr(tr);
+            this.updateCount();          
+            btn.disabled = false;
+            this.addEventsTr(tr);  
             this.showPanelCreate();
             
         });
@@ -107,11 +108,11 @@
             <td><img src="${dataUser.photo}" alt="User Image" class="img-circle img-sm"></td>
             <td>${dataUser.name}</td>
             <td>${dataUser.email}</td>
-            <td>${(dataUser.admin) ? "Sim" : "Não"}</td>
+            <td>${(dataUser.admin) ? "Yes" : "Not"}</td>
             <td>${dataUser.register.toLocaleDateString()}</td>
             <td>
-                <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-                <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+                <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Edit</button>
+                <button type="button" class="btn btn-danger btn-xs btn-flat">Delete</button>
             </td>
         `;
     
@@ -217,7 +218,7 @@
             this.formUpdateEl.dataset.trIndex = tr.sectionRowIndex;
 
             for (let item in json) {
-                let field = formUpdateEl.querySelector('[name=' + item.replace('_', '') + ']');
+                let field = this.formUpdateEl.querySelector('[name=' + item.replace('_', '') + ']');
 
                 if (field) {
                     switch (field.type) {
@@ -225,7 +226,7 @@
                             continue;
 
                         case 'radio':
-                            field = formUpdateEl.querySelector('[name=' + item.replace('_', '') + '][value=' + json[item] + ']');
+                            field = this.formUpdateEl.querySelector('[name=' + item.replace('_', '') + '][value=' + json[item] + ']');
                             field.checked = true;
                             break;
 
@@ -241,6 +242,6 @@
             this.formUpdateEl.querySelector('.photo').src = json._photo;
             this.showPanelUpdate();
         });
-    }
+    }//End of eventsTr
 
 }
