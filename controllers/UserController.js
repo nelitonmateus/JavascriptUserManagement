@@ -1,8 +1,9 @@
  class UserController {
 
-    constructor(formId, tableId){
+    constructor(formId,formIdUpdate, tableId){
 
         this.formEl = document.getElementById(formId);
+        this.formUpdateEl = document.getElementById(formIdUpdate);
         this.tableEl = document.getElementById(tableId);
 
         this.onEdit();
@@ -19,7 +20,7 @@
 
             btn.disabled = true;
             
-            let values = this.getValues();
+            let values = this.getValues(this.formEl);
 
             if (!values) return false;
 
@@ -47,21 +48,54 @@
             this.showPanelCreate();
         });
 
-    }
+        this.formUpdateEl.addEventListener('submit', e=>{
+
+            e.preventDefault();
+            
+            let btn = this.formUpdateEl.querySelector('[type=submit]');
+
+            btn.disabled = true;
+            
+            let values = this.getValues(this.formUpdateEl);
+
+            let tr = this.tableEl.rows[this.formUpdateEl.dataset.trIndex];
+
+            tr.dataset.user = JSON.stringify(values);
+
+            
+            tr.innerHTML =  `
+                <td><img src="${values.photo}" alt="User Image" class="img-circle img-sm"></td>
+                <td>${values.name}</td>
+                <td>${values.email}</td>
+                <td>${(values.admin) ? "Sim" : "Não"}</td>
+                <td>${values.register.toLocaleDateString()}</td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
+                    <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+                </td>
+            `;
+            
+            this.updateCount();
+            this.addEventsTr(tr);
+            this.showPanelCreate();
+            
+        });
+
+    }//End of onEdit
 
     showPanelCreate(){
 
         document.querySelector("#box-user-update").style.display = 'none';
         document.querySelector("#box-user-create").style.display = 'block';
 
-    }
+    }//End of showPanelCreate
 
     showPanelUpdate(){
         
         document.querySelector("#box-user-update").style.display = 'block';
         document.querySelector("#box-user-create").style.display = 'none';
         
-    }
+    }//End of showPanelUpdate
 
     addLine(dataUser){
       
@@ -81,37 +115,7 @@
             </td>
         `;
     
-        tr.querySelector('.btn-edit').addEventListener('click', e=>{
-
-            let json = JSON.parse(tr.dataset.user);
-
-            let formEdit = document.querySelector('#form-user-update');
-
-            for (let item in json) {
-                let field = formEdit.querySelector('[name=' + item.replace('_', '') + ']');
-
-                if (field) {
-                    switch (field.type) {
-                        case 'file':
-                            continue;
-
-                        case 'radio':
-                            field = formEdit.querySelector('[name=' + item.replace('_', '') + '][value=' + json[item] + ']');
-                            field.checked = true;
-                            break;
-
-                        case 'checkbox':
-                            field.checked = json[item];
-                            break;
-                        default:
-                            field.value = json[item];
-                    }
-                }
-
-            }
-
-            this.showPanelUpdate();
-        });
+        this.addEventsTr(tr);
 
         this.tableEl.appendChild(tr);
 
@@ -119,12 +123,12 @@
 
     } //End of addLine
         
-    getValues(){
+    getValues(form){
             
         let user = {};
         let isValid = true;
 
-        [...this.formEl.elements].forEach(e=>{
+        [...form.elements].forEach(e=>{
 
             //Verify if exists a field with name with no value
             if(['name', 'email', 'password'].indexOf(e.name) > -1 && !e.value){
@@ -204,5 +208,39 @@
         document.querySelector('#number-users-admin').innerHTML = numberAdmin;
 
     }//End of updateCount
+
+    addEventsTr(tr){
+        tr.querySelector('.btn-edit').addEventListener('click', e=>{
+
+            let json = JSON.parse(tr.dataset.user);
+
+            this.formUpdateEl.dataset.trIndex = tr.sectionRowIndex;
+
+            for (let item in json) {
+                let field = formUpdateEl.querySelector('[name=' + item.replace('_', '') + ']');
+
+                if (field) {
+                    switch (field.type) {
+                        case 'file':
+                            continue;
+
+                        case 'radio':
+                            field = formUpdateEl.querySelector('[name=' + item.replace('_', '') + '][value=' + json[item] + ']');
+                            field.checked = true;
+                            break;
+
+                        case 'checkbox':
+                            field.checked = json[item];
+                            break;
+                        default:
+                            field.value = json[item];
+                    }
+                }
+
+            }
+            this.formUpdateEl.querySelector('.photo').src = json._photo;
+            this.showPanelUpdate();
+        });
+    }
 
 }
